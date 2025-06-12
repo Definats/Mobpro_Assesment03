@@ -8,7 +8,13 @@ import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -28,9 +34,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -106,14 +117,42 @@ fun ScreenContent(modifier: Modifier = Modifier){
 
 @Composable
 fun ListItem(peminjaman: Peminjaman) {
+    Box(
+        modifier = Modifier
+            .padding(4.dp)
+            .border(1.dp, Color.Gray),
+        contentAlignment = Alignment.BottomCenter
+    ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(ListApi.getListUrl(peminjaman.gambar))
                 .crossfade(true)
                 .build(),
-            contentDescription = stringResource(R.string.gambar, peminjaman.nama),
+            contentDescription = stringResource(R.string.gambar),
+            contentScale = ContentScale.Crop,
+            placeholder = painterResource(id = R.drawable.loading_img),
+            error = painterResource(id = R.drawable.broken_img),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp)
+                .height(180.dp)
         )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp)
+                .background(Color(red = 0f, green = 0f, blue = 0f, alpha = 0.5f))
+                .padding(4.dp)
+        ) {
+            Text(
+                text = peminjaman.nama,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+        }
+    }
 }
+
 private fun getCroppedImage(
     resolver: ContentResolver,
     result: CropImageView.CropResult

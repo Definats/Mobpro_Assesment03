@@ -28,6 +28,6 @@ object ListApi {
         retrofit.create(ListApiSevice::class.java)
     }
     fun getListUrl(gambar: String): String{
-        return "$BASE_URL$gambar.jpg"
+        return "https://api-mobpro-production-pina.up.railway.app/storage/$gambar"
     }
 }

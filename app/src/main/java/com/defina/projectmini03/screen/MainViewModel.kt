@@ -21,6 +21,7 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 data.value = ListApi.service.getList()
+                Log.d("MainViewModel", "Success: ${data.value}")
             } catch (e: Exception) {
                 Log.d("MainViewModel", "Failure: ${e.message}")
             }
