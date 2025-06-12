@@ -172,6 +172,7 @@ fun ScreenContent(modifier: Modifier) {
             LazyVerticalGrid(
                 modifier = modifier.fillMaxSize().padding(4.dp),
                 columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(bottom = 80.dp)
             ) {
                 items(data) { ListItem(peminjaman = it) }
             }
