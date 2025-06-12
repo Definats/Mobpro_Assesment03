@@ -5,5 +5,6 @@
     <string name="belum_bisa">Belum bisa tambah list.</string>
     <string name="error">Gagal memuat data.. koneksi error.</string>
     <string name="try_again">Coba lagi</string>
+    <string name="profile">Profile</string>
 
 </resources>
