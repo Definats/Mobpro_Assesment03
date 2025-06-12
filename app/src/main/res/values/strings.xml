@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">projectmini03</string>
+    <string name="gambar">Gambar 1%s</string>
+    <string name="tambah">Tambah List</string>
+    <string name="belum_bisa">Belum bisa tambah list.</string>
+
 </resources>

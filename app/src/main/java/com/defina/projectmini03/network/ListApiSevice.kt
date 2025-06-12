@@ -27,4 +27,7 @@ object ListApi {
     val service: ListApiSevice by lazy {
         retrofit.create(ListApiSevice::class.java)
     }
+    fun getListUrl(gambar: String): String{
+        return "$BASE_URL$gambar.jpg"
+    }
 }
