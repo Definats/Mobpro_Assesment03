@@ -1,11 +1,18 @@
 package com.defina.projectmini03.network
 
+import com.defina.projectmini03.model.OpStatus
 import com.defina.projectmini03.model.Peminjaman
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.Multipart
+import retrofit2.http.POST
+import retrofit2.http.Part
 
 private const val BASE_URL = "https://api-mobpro-production-pina.up.railway.app/api/"
 
@@ -21,6 +28,15 @@ private val retrofit = Retrofit.Builder()
 interface ListApiSevice {
     @GET("peminjaman")
     suspend fun getList(): List<Peminjaman>
+
+    @Multipart
+    @POST("peminjaman/store")
+    suspend fun postPeminjaman(
+        @Header("Authorization") userId: String,
+        @Part("nama") nama: RequestBody,
+        @Part gambar: MultipartBody.Part
+    ): OpStatus
+
 }
 
 object ListApi {

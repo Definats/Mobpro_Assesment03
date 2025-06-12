@@ -8,6 +8,7 @@ import android.graphics.ImageDecoder
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -89,6 +90,8 @@ fun MainScreen() {
     var bitmap: Bitmap? by remember { mutableStateOf(null)}
     var showListDialog by remember { mutableStateOf(false)}
     var showDialog by remember { mutableStateOf(false) }
+    val viewModel: MainViewModel = viewModel()
+    val errorMessage by viewModel.errorMessage
 
     val launcher = rememberLauncherForActivityResult(CropImageContract()) {
         bitmap = getCroppedImage(context.contentResolver,it)
@@ -141,7 +144,7 @@ fun MainScreen() {
         }
     ){
         innerPadding ->
-        ScreenContent(Modifier.padding(innerPadding))
+        ScreenContent(viewModel, Modifier.padding(innerPadding))
         if (showDialog){
             ProfilDialog(
                 user = user,
@@ -154,16 +157,19 @@ fun MainScreen() {
             PeminjamanDialog(
                 bitmap = bitmap,
                 onDismissRequest = { showListDialog = false }) {nama ->
-                Log.d("TAMBAH", "$nama ditambahkan.")
+                viewModel.saveData(user.email, nama, bitmap!!)
                 showListDialog = false
             }
+        }
+        if (errorMessage != null) {
+            Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+            viewModel.clearMessage()
         }
     }
 }
 
 @Composable
-fun ScreenContent(modifier: Modifier) {
-    val viewModel: MainViewModel = viewModel()
+fun ScreenContent(viewModel: MainViewModel, modifier: Modifier) {
     val data by viewModel.data
     val status by viewModel.status.collectAsState()
 
