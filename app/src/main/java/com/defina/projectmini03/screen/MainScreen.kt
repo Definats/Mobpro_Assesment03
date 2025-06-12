@@ -86,6 +86,7 @@ fun MainScreen() {
     val user by dataStore.userFlow.collectAsState(User())
     var bitmap: Bitmap? by remember { mutableStateOf(null)}
     var showListDialog by remember { mutableStateOf(false)}
+    var showDialog by remember { mutableStateOf(false) }
 
     val launcher = rememberLauncherForActivityResult(CropImageContract()) {
         bitmap = getCroppedImage(context.contentResolver,it)
@@ -107,7 +108,7 @@ fun MainScreen() {
                             CoroutineScope(Dispatchers.IO).launch { signIn(context, dataStore) }
                         }
                         else {
-                            Log.d("SIGN-IN", "User: $user")
+                            showDialog = true
                         }
                     }) {
                         Icon(
@@ -139,6 +140,13 @@ fun MainScreen() {
     ){
         innerPadding ->
         ScreenContent(Modifier.padding(innerPadding))
+        if (showDialog){
+            ProfilDialog(
+                user = user,
+                onDismissRequest = { showDialog = false}) {
+                showDialog = false
+            }
+        }
     }
 }
 
