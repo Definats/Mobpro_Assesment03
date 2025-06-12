@@ -66,8 +66,10 @@ import com.canhub.cropper.CropImageView
 import com.defina.projectmini03.BuildConfig
 import com.defina.projectmini03.R
 import com.defina.projectmini03.model.Peminjaman
+import com.defina.projectmini03.model.User
 import com.defina.projectmini03.network.ApiStatus
 import com.defina.projectmini03.network.ListApi
+import com.defina.projectmini03.network.UserDataStore
 import com.defina.projectmini03.ui.theme.Projectmini03Theme
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -80,6 +82,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainScreen() {
     val context = LocalContext.current
+    val dataStore = UserDataStore(context)
+    val user by dataStore.userFlow.collectAsState(User())
     var bitmap: Bitmap? by remember { mutableStateOf(null)}
     var showListDialog by remember { mutableStateOf(false)}
 
@@ -98,7 +102,13 @@ fun MainScreen() {
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 actions = {
-                    IconButton(onClick = { CoroutineScope(Dispatchers.IO).launch{ signIn(context) }
+                    IconButton(onClick = {
+                        if (user.email.isEmpty()) {
+                            CoroutineScope(Dispatchers.IO).launch { signIn(context, dataStore) }
+                        }
+                        else {
+                            Log.d("SIGN-IN", "User: $user")
+                        }
                     }) {
                         Icon(
                             painter = painterResource(R.drawable.baseline_account_circle_24),
@@ -217,7 +227,7 @@ fun ListItem(peminjaman: Peminjaman) {
     }
 }
 
-private suspend fun signIn(context: Context) {
+private suspend fun signIn(context: Context, dataStore: UserDataStore) {
     val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
         .setFilterByAuthorizedAccounts(false)
         .setServerClientId(BuildConfig.API_KEY)
@@ -230,21 +240,25 @@ private suspend fun signIn(context: Context) {
     try {
         val credentialManager = CredentialManager.create(context)
         val result = credentialManager.getCredential(context, request)
-        handleSignIn(result)
+        handleSignIn(result, dataStore)
     } catch (e: GetCredentialException) {
         Log.e("SIGN-IN", "Error: ${e.errorMessage}")
     }
 }
 
 private suspend fun handleSignIn(
-    result: GetCredentialResponse
+    result: GetCredentialResponse,
+    dataStore: UserDataStore
 ) {
     val credential = result.credential
     if (credential is CustomCredential &&
         credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
         try {
             val googleId = GoogleIdTokenCredential.createFrom(credential.data)
-            Log.e("SIGN-IN", "User email: ${googleId.id}")
+            val name = googleId.displayName ?: ""
+            val email = googleId.id
+            val photoUrl = googleId.profilePictureUri.toString()
+            dataStore.saveData(User(name, email, photoUrl))
         } catch (e: GoogleIdTokenParsingException){
             Log.e("SIGN-IN", "Error: ${e.message}")
         }
