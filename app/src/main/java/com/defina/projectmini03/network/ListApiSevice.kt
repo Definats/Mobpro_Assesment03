@@ -27,7 +27,9 @@ private val retrofit = Retrofit.Builder()
 
 interface ListApiSevice {
     @GET("peminjaman")
-    suspend fun getList(): List<Peminjaman>
+    suspend fun getList(
+        @Header("Authorization") userId: String
+    ): List<Peminjaman>
 
     @Multipart
     @POST("peminjaman/store")
