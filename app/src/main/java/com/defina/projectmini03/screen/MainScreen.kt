@@ -150,6 +150,14 @@ fun MainScreen() {
                 showDialog = false
             }
         }
+        if (showListDialog) {
+            PeminjamanDialog(
+                bitmap = bitmap,
+                onDismissRequest = { showListDialog = false }) {nama ->
+                Log.d("TAMBAH", "$nama ditambahkan.")
+                showListDialog = false
+            }
+        }
     }
 }
 
