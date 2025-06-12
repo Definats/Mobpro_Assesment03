@@ -125,7 +125,12 @@ fun ListItem(peminjaman: Peminjaman) {
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(ListApi.getListUrl(peminjaman.gambar))
+                .data(
+                    if (peminjaman.nama == "Tas")
+                        ListApi.getListUrl("not-found")
+                    else
+                        ListApi.getListUrl(peminjaman.gambar)
+                )
                 .crossfade(true)
                 .build(),
             contentDescription = stringResource(R.string.gambar),
