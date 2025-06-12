@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -30,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +55,7 @@ import com.canhub.cropper.CropImageOptions
 import com.canhub.cropper.CropImageView
 import com.defina.projectmini03.R
 import com.defina.projectmini03.model.Peminjaman
+import com.defina.projectmini03.network.ApiStatus
 import com.defina.projectmini03.network.ListApi
 import com.defina.projectmini03.ui.theme.Projectmini03Theme
 
@@ -103,15 +106,28 @@ fun MainScreen() {
 }
 
 @Composable
-fun ScreenContent(modifier: Modifier = Modifier){
+fun ScreenContent(modifier: Modifier) {
     val viewModel: MainViewModel = viewModel()
     val data by viewModel.data
+    val status by viewModel.status.collectAsState()
 
-    LazyVerticalGrid(
-        modifier = modifier.fillMaxSize().padding(4.dp),
-        columns = GridCells.Fixed(2),
-    ) {
-        items(data) { ListItem(peminjaman = it) }
+    when(status) {
+        ApiStatus.LOADING -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ){
+                CircularProgressIndicator()
+            }
+        }
+        ApiStatus.SUCCESS -> {
+            LazyVerticalGrid(
+                modifier = modifier.fillMaxSize().padding(4.dp),
+                columns = GridCells.Fixed(2),
+            ) {
+                items(data) { ListItem(peminjaman = it) }
+            }
+        }
     }
 }
 

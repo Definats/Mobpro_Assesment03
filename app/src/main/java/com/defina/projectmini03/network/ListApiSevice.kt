@@ -31,3 +31,5 @@ object ListApi {
         return "https://api-mobpro-production-pina.up.railway.app/storage/$gambar"
     }
 }
+
+enum class ApiStatus { LOADING, SUCCESS }
