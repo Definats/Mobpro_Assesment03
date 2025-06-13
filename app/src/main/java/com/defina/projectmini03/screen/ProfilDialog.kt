@@ -1,7 +1,6 @@
 package com.defina.projectmini03.screen
 
 import android.content.res.Configuration
-import android.provider.ContactsContract.Profile
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
