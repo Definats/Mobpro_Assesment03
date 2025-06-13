@@ -8,11 +8,13 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Path
 
 private const val BASE_URL = "https://api-mobpro-production-pina.up.railway.app/api/"
 
@@ -39,7 +41,22 @@ interface ListApiSevice {
         @Part gambar: MultipartBody.Part
     ): OpStatus
 
+    @DELETE("peminjaman/delete/{id}")
+    suspend fun deletePeminjaman(
+        @Header("Authorization") userId: String,
+        @Path("id") id: String
+    ):OpStatus
+
+    @Multipart
+    @POST("peminjaman/edit/{id}")
+    suspend fun editPeminjaman(
+        @Header("Authorization") userId: String,
+        @Path("id") id: String,
+        @Part("nama") nama: RequestBody,
+        @Part gambar: MultipartBody.Part
+    ): OpStatus
 }
+
 
 object ListApi {
     val service: ListApiSevice by lazy {

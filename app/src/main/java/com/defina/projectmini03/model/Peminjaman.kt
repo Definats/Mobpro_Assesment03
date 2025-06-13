@@ -4,4 +4,6 @@ data class Peminjaman(
     val id: String,
     val nama: String,
     val gambar: String,
+    val mine: Int?
 )
+

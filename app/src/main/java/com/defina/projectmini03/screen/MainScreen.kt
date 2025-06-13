@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
+import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
@@ -16,15 +17,22 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -60,6 +68,7 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.NoCredentialException
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -130,7 +139,7 @@ fun MainScreen() {
             FloatingActionButton(onClick = {
                 val options = CropImageContractOptions(
                     null, CropImageOptions(
-                        imageSourceIncludeGallery = false,
+                        imageSourceIncludeGallery = true,
                         imageSourceIncludeCamera = true,
                         fixAspectRatio = true
                     )
@@ -175,7 +184,7 @@ fun ScreenContent(viewModel: MainViewModel, userId: String, modifier: Modifier) 
     val status by viewModel.status.collectAsState()
 
     LaunchedEffect(userId) {
-        viewModel.retrieveData(userId)
+          viewModel.retrieveData(userId)
     }
     when(status) {
         ApiStatus.LOADING -> {
@@ -192,7 +201,20 @@ fun ScreenContent(viewModel: MainViewModel, userId: String, modifier: Modifier) 
                 columns = GridCells.Fixed(2),
                 contentPadding = PaddingValues(bottom = 80.dp)
             ) {
-                items(data) { ListItem(peminjaman = it) }
+                items(data) {
+                    ListItem(
+                        peminjaman = it,
+                        userId = userId,
+                        onDelete = { id ->
+                            viewModel.deleteData(userId, id)
+                        },
+                        onEdit = { id, nama, bitmap ->
+                            if (bitmap != null) {
+                                viewModel.updateData(userId, id, nama, bitmap)
+                            }
+                        }
+                    )
+                }
             }
         }
         ApiStatus.FAILED -> {
@@ -215,7 +237,11 @@ fun ScreenContent(viewModel: MainViewModel, userId: String, modifier: Modifier) 
 }
 
 @Composable
-fun ListItem(peminjaman: Peminjaman) {
+fun ListItem(peminjaman: Peminjaman, userId: String, onDelete: (String) -> Unit, onEdit: (String, String, Bitmap?) -> Unit) {
+    var showDialogDelete by remember { mutableStateOf(false) }
+    var currentBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var showDialogEdit by remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .padding(4.dp)
@@ -224,12 +250,7 @@ fun ListItem(peminjaman: Peminjaman) {
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(
-                    if (peminjaman.nama == "Tas")
-                        ListApi.getListUrl("not-found")
-                    else
-                        ListApi.getListUrl(peminjaman.gambar)
-                )
+                .data(ListApi.getListUrl(peminjaman.gambar))
                 .crossfade(true)
                 .build(),
             contentDescription = stringResource(R.string.gambar),
@@ -239,7 +260,13 @@ fun ListItem(peminjaman: Peminjaman) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(4.dp)
-                .height(180.dp)
+                .height(180.dp),
+            onSuccess = { result ->
+                val drawable = result.result.drawable
+                if (drawable is BitmapDrawable) {
+                    currentBitmap = drawable.bitmap
+                }
+            }
         )
         Column(
             modifier = Modifier
@@ -251,8 +278,70 @@ fun ListItem(peminjaman: Peminjaman) {
             Text(
                 text = peminjaman.nama,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = Color.White,
             )
+        }
+        if (peminjaman.mine == 1) {
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(8.dp)
+            ) {
+                IconButton(
+                    onClick = { showDialogDelete = true },
+                    modifier = Modifier
+                        .background(Color(0f, 0f, 0f, 0.2f), shape = CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = stringResource(R.string.hapus),
+                        tint = Color.White
+                    )
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+                IconButton(
+                    onClick = { showDialogEdit = true },
+                    modifier = Modifier
+                        .background(Color(0f, 0f, 0f, 0.5f), shape = CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit",
+                        tint = Color.White
+                    )
+                }
+            }
+            if (showDialogDelete) {
+                AlertDialog(
+                    onDismissRequest = { showDialogDelete = false },
+                    title = { Text(text = stringResource(R.string.konfirmasi)) },
+                    text = { Text(text = stringResource(R.string.dialoghapus)) },
+                    confirmButton = {
+                        Button(onClick = {
+                            showDialogDelete = false
+                            onDelete(peminjaman.id)
+                        }) {
+                            Text(text = stringResource(R.string.hapus))
+                        }
+                    },
+                    dismissButton = {
+                        Button(onClick = { showDialogDelete = false }) {
+                            Text(text = stringResource(R.string.batal))
+                        }
+                    }
+                )
+            }
+            if (showDialogEdit) {
+                EditPeminjamanDialog(
+                    initialNama = peminjaman.nama,
+                    initialBitmap = currentBitmap,
+                    onDismissRequest = { showDialogEdit = false },
+                    onConfirmation = { nama, bitmap ->
+                        showDialogEdit = false
+                        onEdit(peminjaman.id, nama, bitmap)
+                    }
+                )
+            }
         }
     }
 }
@@ -271,6 +360,8 @@ private suspend fun signIn(context: Context, dataStore: UserDataStore) {
         val credentialManager = CredentialManager.create(context)
         val result = credentialManager.getCredential(context, request)
         handleSignIn(result, dataStore)
+    } catch (e: NoCredentialException) {
+        Log.e("SIGN-IN", "No credentials available.")
     } catch (e: GetCredentialException) {
         Log.e("SIGN-IN", "Error: ${e.errorMessage}")
     }

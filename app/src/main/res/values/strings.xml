@@ -12,4 +12,15 @@
     <string name="nama">Nama barang</string>
     <string name="batal">Batal</string>
     <string name="simpan">Simpan</string>
+    <string name="hapus">Hapus</string>
+    <string name="delete_dialog_title">Konfirmasi Hapus</string>
+    <string name="delete_dialog_message">Apakah kamu yakin ingin menghapus data ini?</string>
+    <string name="cancel">Batal</string>
+    <string name="konfirmasi">Konfirmasi Hapus</string>
+    <string name="dialoghapus">Apakah Anda yakin ingin menghapus List ini?</string>
+    <string name="pilihgambar">Pilih Gambar</string>
+    <string name="sumbergambar">sumber gambar</string>
+    <string name="foto">Foto</string>
+    <string name="camera">Camera</string>
+
 </resources>

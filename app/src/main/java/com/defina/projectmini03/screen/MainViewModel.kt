@@ -54,11 +54,50 @@ class MainViewModel : ViewModel() {
                     throw Exception(result.message)
             } catch (e: Exception) {
                 Log.d("MainViewModel", "Failure: ${e.message}")
-                errorMessage.value = "Error: ${e.message}"
             }
         }
     }
 
+
+    fun updateData(userId: String, peminjamanId: String, nama: String, bitmap: Bitmap) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val result = ListApi.service.editPeminjaman(
+                    userId,
+                    peminjamanId,
+                    nama.toRequestBody("text/plain".toMediaTypeOrNull()),
+                    bitmap.toMultipartBody()
+                )
+
+                if(result.status == "success")
+                    retrieveData(userId)
+                else
+                    throw Exception(result.message)
+            } catch (e: Exception) {
+                Log.d("MainViewModel", "Failure: ${e.message}")
+            }
+        }
+    }
+
+    fun deleteData(userId: String, peminjamanId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val result = ListApi.service.deletePeminjaman(
+                    userId,
+                    peminjamanId
+                )
+
+                if(result.status == "success"){
+                    retrieveData(userId)
+                } else {
+                    throw Exception(result.message)
+                }
+            } catch (e: Exception) {
+                Log.d("MainViewModel", "Error delete: ${e.message}")
+                errorMessage.value = "Error: ${e.message}"
+            }
+        }
+    }
     private fun Bitmap.toMultipartBody(): MultipartBody.Part {
         val stream = ByteArrayOutputStream()
         compress(Bitmap.CompressFormat.JPEG, 80, stream)
