@@ -165,7 +165,7 @@ fun EditPeminjamanDialog(
 @Preview(showBackground = true)
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Composable
-fun EditBangunRuangDialogPreview() {
+fun EditPeminjamanPreview() {
     Projectmini03Theme {
         EditPeminjamanDialog(
             initialNama = "Tas",

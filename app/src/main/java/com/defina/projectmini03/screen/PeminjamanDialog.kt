@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.defina.projectmini03.R
+import com.defina.projectmini03.model.Peminjaman
 import com.defina.projectmini03.ui.theme.Projectmini03Theme
 
 @Composable
@@ -91,7 +92,7 @@ fun PeminjamanDialog(
 @Preview(showBackground = true)
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Composable
-fun AddDialogPreview() {
+fun PeminjamanDialogPreview() {
     Projectmini03Theme {
         PeminjamanDialog(
             bitmap = null,

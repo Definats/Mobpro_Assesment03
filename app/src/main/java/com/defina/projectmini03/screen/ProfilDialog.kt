@@ -1,6 +1,7 @@
 package com.defina.projectmini03.screen
 
 import android.content.res.Configuration
+import android.provider.ContactsContract.Profile
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -101,7 +102,7 @@ fun ProfilDialog(
 @Preview(showBackground = true)
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Composable
-fun DialogPreview() {
+fun ProfileDialogPreview() {
     Projectmini03Theme {
         ProfilDialog(
             user = User("Defina Salsabila", "defina.trisalsabila05@gmail.com", ""),
